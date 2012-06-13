@@ -23,7 +23,6 @@
 #define __dgVector__
 
 #include "dgTypes.h"
-#include "dgSimd_Instrutions.h"
 
 #define dgCheckVector(x) (dgCheckFloat(x[0]) && dgCheckFloat(x[1]) && dgCheckFloat(x[2]) && dgCheckFloat(x[3]))
 //#define dgCheckVector(x) true
@@ -85,16 +84,13 @@ class dgVector: public dgTemplateVector<hacd::HaF32>
 {
 	public:
 	dgVector();
-//	dgVector(const simd_type& val);
-	dgVector(const simd_128& val);
 
 	dgVector (const dgTemplateVector<hacd::HaF32>& v);
 	dgVector (const hacd::HaF32 *ptr);
 	dgVector (hacd::HaF32 x, hacd::HaF32 y, hacd::HaF32 z, hacd::HaF32 w); 
          dgVector (const dgBigVector& copy); 
 
-//	dgVector operator= (const simd_type& val);
-	dgVector operator= (const simd_128& val);
+
 
 	hacd::HaF32 DotProductSimd (const dgVector& A) const;
 	dgVector CrossProductSimd (const dgVector &A) const;
@@ -312,44 +308,10 @@ HACD_FORCE_INLINE dgVector::dgVector (const dgBigVector& copy)
 	HACD_ASSERT (dgCheckVector ((*this)));
 }
 
-HACD_FORCE_INLINE dgVector::dgVector(const simd_128& val)
-{
-	HACD_ASSERT ((hacd::HaU64(this) & 0x0f) == 0);
-	(simd_128&) *this = val;
-	HACD_ASSERT (dgCheckVector ((*this)));
-}
-
-
-HACD_FORCE_INLINE dgVector dgVector::operator= (const simd_128& val)
-{
-	(simd_128&)*this = val;
-	return *this;
-}
-
-
 HACD_FORCE_INLINE dgVector::dgVector (hacd::HaF32 x, hacd::HaF32 y, hacd::HaF32 z, hacd::HaF32 w) 
 	:dgTemplateVector<hacd::HaF32>(x, y, z, w)
 {
 	HACD_ASSERT (dgCheckVector ((*this)));
-}
-
-HACD_FORCE_INLINE hacd::HaF32 dgVector::DotProductSimd (const dgVector& A) const
-{
-	hacd::HaF32 dot;
-	simd_128 temp (((simd_128&)*this).DotProduct((simd_128&)A));
-	temp.StoreScalar (&dot);
-	return dot;
-}
-
-HACD_FORCE_INLINE dgVector dgVector::CrossProductSimd (const dgVector &e10) const
-{
-	return ((simd_128&)*this).CrossProduct((simd_128&)e10);
-}
-
-
-HACD_FORCE_INLINE dgVector dgVector::CompProductSimd (const dgVector &A) const
-{
-	return ((simd_128&)*this) * (simd_128&)A;
 }
 
 HACD_FORCE_INLINE dgBigVector::dgBigVector()
